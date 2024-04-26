@@ -18,3 +18,4 @@ class FeatureSchemaInfo(BaseModel):
 class ApplicationInfo(BaseModel):
     application_version: str
     default_feature_schema: str = Field(example="refdata-gex-GRCh38-2020-A")
+    super_secret: str = None

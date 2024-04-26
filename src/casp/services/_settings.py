@@ -23,6 +23,13 @@ class AllEnvSettings(BaseSettings):
     SERVICES_DIR = SERVICES_DIR
     DEFAULT_SERVICE_HOST: str = "0.0.0.0"
     DEFAULT_SERVICE_PORT: int = 8000
+    API_SERVICE_PORT: int = DEFAULT_SERVICE_PORT
+    MODEL_SERVICE_PORT: int = DEFAULT_SERVICE_PORT
+    LOG_LEVEL: str = "info"
+    LOG_CONFIG: str = f"{SERVICES_DIR}/log_config.yaml"
+    LOG_AS_JSON: bool = os.environ.get("LOG_AS_JSON", True)
+    SUPER_SECRET: str = os.environ.get("SUPER_SECRET")
+
     # Sentry
     SENTRY_DSN: str = os.environ.get("SENTRY_DSN")
     SENTRY_ENABLE_TRACING: bool = True

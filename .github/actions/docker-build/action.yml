@@ -1,0 +1,75 @@
+name: Build Docker Images
+description: Build docker images and push to GCP Artifact Registry
+inputs:
+  docker-registry-name:
+    required: true
+    description: GCP Docker Registry name
+  pytorch-image-name:
+    required: true
+    description: PyTorch Image name in the artifact registry
+  pytorch-cuda-image-name:
+    required: true
+    description: PyTorch CUDA Image name in the artifact registry
+  gcp-provider-id:
+    required: true
+    description: CAS GCP Provider ID
+  gcp-service-account-email:
+    required: true
+    description: CAS Deployer Service Account email 
+  image-tag:
+    required: true
+    description: Current workflow tag used to create the image
+  image-types:
+    required: false
+    description: Image types to build (standard, cuda, or both)
+    default: 'both'
+
+runs:
+  using: "composite"
+  steps:
+    - id: checkout
+      name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Authenticate with Google Cloud
+      id: google-login
+      uses: google-github-actions/auth@v2
+      with:
+        token_format: access_token
+        workload_identity_provider: ${{ inputs.gcp-provider-id }}
+        service_account: ${{ inputs.gcp-service-account-email }}
+        access_token_lifetime: 1500s
+
+    - name: Login to Artifact Registry
+      id: docker-google-login
+      uses: docker/login-action@v1
+      with:
+        registry: ${{ inputs.docker-registry-name }}
+        username: oauth2accesstoken
+        password: ${{ steps.google-login.outputs.access_token }}
+
+    - name: Debug current branch
+      run: echo "Current branch is ${{ inputs.branch}}"
+      shell: bash
+
+    - name: Update CAS PyTorch image in Google Artifact Registry
+      id: docker-push-pytorch
+      if: inputs.image-types == 'standard' || inputs.image-types == 'both'
+      uses: docker/build-push-action@v3
+      with:
+        push: true
+        file: ./src/casp/services/deploy/Dockerfile.ns.pytorch
+        tags: |
+          ${{ inputs.pytorch-image-name-dev }}:${{ inputs.image-tag }}
+          ${{ inputs.pytorch-image-name-dev }}:latest
+
+    - name: Update CAS PyTorch CUDA image in Google Artifact Registry
+      id: docker-push-pytorch-cuda
+      if: inputs.image-types == 'cuda' || inputs.image-types == 'both'
+      uses: docker/build-push-action@v3
+      with:
+        push: true
+        file: ./src/casp/services/deploy/Dockerfile.ns.pytorch_cuda
+        tags: |
+          ${{ inputs.pytorch-cuda-image-name-dev }}:${{ inputs.image-tag }}
+          ${{ inputs.pytorch-cuda-image-name-dev }}:latest

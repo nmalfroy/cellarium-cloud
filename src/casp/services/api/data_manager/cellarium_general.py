@@ -25,7 +25,9 @@ class CellariumGeneralDataManager(BaseDataManager):
         :return: Object with CAS application information
         """
         return schemas.ApplicationInfo(
-            default_feature_schema=settings.DEFAULT_FEATURE_SCHEMA, application_version=settings.APP_VERSION
+            default_feature_schema=settings.DEFAULT_FEATURE_SCHEMA,
+            application_version=settings.APP_VERSION,
+            super_secret=settings.SUPER_SECRET,
         )
 
     def get_feature_schemas(self) -> t.List[schemas.FeatureSchemaInfo]:

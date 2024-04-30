@@ -3,17 +3,23 @@ on:
   workflow_dispatch:
     inputs:
       image-types:
-        description: 'Image types to build'
-        required: true
+        description: 'Image types to build. Can be `standard`, `cuda` or `both`. Default is `both`.'
+        required: false
         default: 'both'
         type: choice
         options:
           - both
           - standard
           - cuda
-      docker-tag:
-        description: 'Docker image tag. Will use the last commit hash if nothing is passed in'
-        required: true
+      image-tag:
+        description: 'Docker image tag. Will use the short hash of the last commit in the branch if nothing is passed in.'
+        required: false
+        default: ''
+      add-latest-tag:
+        description: 'Push a `latest` tag to the artifact registry.  Default is `true`.'
+        required: false
+        default: true
+        type: boolean
       
       
 jobs:
